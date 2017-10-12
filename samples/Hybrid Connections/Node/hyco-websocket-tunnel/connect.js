@@ -1,22 +1,22 @@
 var https = require('https');
 var tunnel = require('./lib/tunnel');
 var WebSocket = require('hyco-websocket');
+var config = require('./config.json')
+/* config.json needs to contain azure relay details, like such
+{
+  "ns": "{relayname}.servicebus.windows.net",
+  "path": "{connectionname}",
+  "keyrule": "RootManageSharedAccessKey",
+  "key":  "{key for Shared Access}"
+}*/
+const ns = config.ns;
+const path = config.path;
+const keyrule = config.keyrule;
+const key = config.key;
 
-var argv = require('optimist').argv;
-if (argv._.length < 4) {
-  console.log('connect.js [namespace] [path] [key-rule] [key]')
-  process.exit(1);
-}
-
-var ns = argv._[0];
-var path = argv._[1];
-var keyrule = argv._[2];
-var key = argv._[3];
 var server = WebSocket.createRelaySendUri(ns, path);
 var token = WebSocket.createRelayToken('http://' + ns, keyrule, key);
-
 var credentials, tunnels = [];
-
 var shell = global.shell = require('./lib/shell');
 
 shell.on('command', function(cmd, args) {
@@ -57,7 +57,7 @@ shell.on('command', function(cmd, args) {
   }
 });
 
-shell.echo('WebSocket Tunnel Console v0.1');
+shell.echo('WebSocket Tunnel Console');
 shell.echo('Remote Host: ' + ns);
 
 authenticate(function() {
