@@ -83,7 +83,8 @@ exports.createTunnel = function(wsServerAddr, token, credentials, listen, forwar
     var url = wsServerAddr + '&port=' + forward.port + '&host=' + forward.host;
     wsClient.connect(url, null, null,
       { 'ServiceBusAuthorization' : token,
-        'Authorization': 'Basic ' + new Buffer(credentials).toString('base64')});
+//            'Authorization': 'Basic ' + new Buffer(credentials).toString('base64')
+        });
 
   });
 
