@@ -10,27 +10,37 @@ const path = config.path;
 const keyrule = config.keyrule;
 const key = config.key;
 
-console.log("Starting 'server' side of relay.")
-console.log("Connecting to: " + ns + "/" + path);
+try {
+    console.log("Starting 'server' side of relay.")
+    console.log("Connecting to: " + ns + "/" + path);
 
-var wsServer = new WebSocketServer({
-    server: WebSocket.createRelayListenUri(ns, path),
-    token: function () {
-        return WebSocket.createRelayToken('http://' + ns, keyrule, key);
-    }
-});
+    var wsServer = new WebSocketServer({
+        server: WebSocket.createRelayListenUri(ns, path),
+        token: function () {
+            return WebSocket.createRelayToken('http://' + ns, keyrule, key);
+        }
+    });
+    console.log("Relay 'server' connected to: " + wsServer.listenUri);
 
-wsServer.on('request', function (request) {
-    var url = urlParse(request.resource, true);
-    var params = url.query;
-    if (params['sb-hc-action'] === 'accept') {
-        createTunnel(request, params.port, params.host);
-        console.log('Connecting to '+ params.host + ": " + params.port);
-    } else {
-        console.log('Unexpected sb-hc-action');
-        request.reject(404);
-    }
-});
+    wsServer.on('request', function (request) {
+        console.log('In web socket request...')
+        var url = urlParse(request.resource, true);
+        var params = url.query;
+        if (params['sb-hc-action'] === 'accept') {
+            createTunnel(request, params.port, params.host);
+            console.log('Connecting to ' + params.host + ": " + params.port);
+        } else {
+            console.log('Unexpected sb-hc-action');
+            request.reject(404);
+        }
+    });
+    wsServer.on('error', function (err) {
+        console.log('Error in wsServer: ' + err);
+    });
+}
+catch (err){
+    console.log(err.message);
+}
 
 function createTunnel(request, destinationPort, destinationHost) {
     request.accept(null, null, null, function (webSock) {
