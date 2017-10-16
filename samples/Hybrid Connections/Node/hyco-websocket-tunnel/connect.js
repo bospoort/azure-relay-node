@@ -1,8 +1,10 @@
 var https = require('https');
 var tunnel = require('./lib/tunnel');
 var WebSocket = require('hyco-websocket');
+var shell = global.shell = require('./lib/shell');
 var config = require('./config.json');
 
+//Hybrid relay config
 const ns = config.ns;
 const path = config.path;
 const keyrule = config.keyrule;
@@ -10,10 +12,7 @@ const key = config.key;
 
 var relayServerURI = WebSocket.createRelaySendUri(ns, path);
 var relayToken = WebSocket.createRelayToken('http://' + ns, keyrule, key);
-
-var credentials = null, tunnels = [];
-
-var shell = global.shell = require('./lib/shell');
+var credentials, tunnels = [];
 
 shell.on('command', function (cmd, args) {
     if (cmd == 'help') {
@@ -53,18 +52,6 @@ shell.on('command', function (cmd, args) {
                 }
 });
 
-shell.echo('WebSocket Tunnel Console v0.1');
+shell.echo('WebSocket Tunnel');
 shell.echo('Remote Host: ' + ns);
-
-//authenticate(function () {
-    shell.prompt();
-//});
-
-//function authenticate(callback) {
-//    shell.prompt('Username: ', function (user) {
-//        shell.prompt('Password: ', function (pw) {
-//            credentials = user + ':' + pw;
-//            callback();
-//        }, { passwordMode: true });
-//    });
-//}
+shell.prompt();
