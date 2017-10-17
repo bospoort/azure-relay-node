@@ -37,9 +37,33 @@ try {
     wsServer.on('error', function (err) {
         console.log('Error in wsServer: ' + err);
     });
+
+    setupHeartBeat();
+
 }
 catch (err){
     console.log(err.message);
+}
+
+function setupHeartBeat() {
+    const http = require('http')
+    const port = process.env.VCAP_APP_PORT || 5000
+
+    const requestHandler = (request, response) => {
+        console.log(request.url)
+        response.end('Hello Node.js Server!')
+    }
+
+    const server = http.createServer(requestHandler)
+
+    server.listen(port, (err) => {
+        if (err) {
+            return console.log('something bad happened', err)
+        }
+
+        console.log(`server is listening on ${port}`)
+    })
+
 }
 
 function createTunnel(request, destinationPort, destinationHost) {
